@@ -1,0 +1,64 @@
+# Sign Language Detector Implementation Plan
+
+## Goal Description
+Create a Python program that uses the webcam to detect sign language gestures, maintains a transcript of detected signs, and reads the transcript aloud upon completion.
+
+## User Review Required
+> [!NOTE]
+> This implementation will use a **rule-based** approach for a set of predefined gestures (Thumbs Up, Thumbs Down, Open Hand, Peace, I Love You) to ensure immediate functionality without a training phase.
+
+## Proposed Changes
+
+### Project Structure
+- `main.py`: Entry point, handles webcam loop, UI, and TTS.
+- `hand_detector.py`: Wrapper class for MediaPipe Hands.
+- `gesture_classifier.py`: Logic to classify gestures based on landmarks.
+
+### Dependencies
+- `opencv-python`
+- `mediapipe`
+- `pyttsx3`
+- `numpy`
+
+### [NEW] [hand_detector.py](file:///C:/Users/PC/Documents/Antigravity/hand_detector.py)
+- Class `HandDetector`:
+    - Initializes MediaPipe Hands.
+    - Method `find_hands(img)`: Returns image with drawn landmarks.
+    - Method `find_position(img)`: Returns list of landmark coordinates.
+
+### [NEW] [gesture_classifier.py](file:///C:/Users/PC/Documents/Antigravity/gesture_classifier.py)
+- Class `GestureClassifier`:
+    - Method `classify(landmarks)`:
+        - Calculates state of fingers (Open/Closed).
+        - Matches finger states to predefined gestures.
+        - Returns label (e.g., "Hello", "Yes", "No", "I Love You").
+
+### [NEW] [main.py](file:///C:/Users/PC/Documents/Antigravity/main.py)
+- Initialize `HandDetector`, `GestureClassifier`, and `pyttsx3` engine.
+- Loop:
+    - Capture frame.
+    - Detect hands.
+    - Classify gesture.
+    - **Stability Check**: Only add gesture to transcript if detected consistently for X frames.
+    - Display current gesture and transcript on screen.
+    - Check for 'q' key to quit.
+- On Quit:
+    - Use TTS to read the full transcript.
+    - Save transcript to `transcript.txt`.
+
+## Verification Plan
+
+### Automated Tests
+- None (Visual interactive application).
+
+### Manual Verification
+1.  **Setup**: Run `pip install opencv-python mediapipe pyttsx3 numpy`.
+2.  **Run**: Execute `python main.py`.
+3.  **Test Gestures**:
+    - Show **Open Palm** -> Should detect "Hello".
+    - Show **Thumbs Up** -> Should detect "Yes".
+    - Show **Thumbs Down** -> Should detect "No".
+    - Show **Peace Sign** -> Should detect "Peace".
+    - Show **I Love You** (Thumb, Index, Pinky out) -> Should detect "I Love You".
+4.  **Transcript**: Verify words are added to the list on screen.
+5.  **Completion**: Press 'q'. Verify the program reads the sentence aloud and saves `transcript.txt`.
